@@ -31,7 +31,7 @@ $ npm install
 $ ./cli.js --help
 
 # example
-$ ./cli.js --type LiIon --mode charge --cells 7 --ccurrent 0.5
+$ sudo ./cli.js --type LiIon --mode charge --cells 7 --ccurrent 0.5
 
 
 ```

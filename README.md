@@ -23,7 +23,7 @@ very early version! Bugs can inflame your batteries! Use at your own risk! Neith
 
 ## Usage as CLI Tool
 ```bash
-$ git clone
+$ git clone https://github.com/alangecker/chargemaster.git
 $ cd chargemaster
 $ npm install
 

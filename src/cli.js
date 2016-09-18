@@ -38,13 +38,19 @@ const optionDefinitions = [
     name: 'ccurrent',
     description: `Current for charging`,
     type: String,
-    typeLabel: '0.1A'
+    typeLabel: '0.1'
   },
   {
     name: 'dcurrent',
     description: `Current for discharging`,
     type: String,
-    typeLabel: '0.1A'
+    typeLabel: '0.1'
+  },
+  {
+    name: 'endvoltage',
+    description: 'maximum voltage',
+    type: String,
+    typeLabel: '4.1'
   },
   {
     name: 'stop',
@@ -155,7 +161,7 @@ export function parseArguments() {
     res.cdata.DCurrent = parseFloat(options.dcurrent)*1000
   }
 
-  // dcurrent
+  // endvoltage
   if(options.endvoltage) {
     res.cdata.EndVoltage = parseFloat(options.endvoltage)*1000
   }

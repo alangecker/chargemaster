@@ -54,7 +54,7 @@ const optionDefinitions = [
   {
     name: 'help',
     description: `show this help`,
-    type: String
+    type: Boolean
   }
 ]
 
@@ -95,7 +95,7 @@ export function showUsage() {
 export function parseArguments() {
   const options = commandLineArgs(optionDefinitions)
   // show help?
-  if(options.help || Object.keys(options).length == 0) {
+  if(options.help || process.argv.length < 3) {
     return {
       do: 'help'
     }

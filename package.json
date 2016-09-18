@@ -1,10 +1,10 @@
 {
   "name": "chargemaster",
   "version": "0.1.0",
-  "description": "",
+  "description": "control various LiIon/NiMH/... chargers with nodejs",
   "main": "index.js",
   "directories": {
-    "test": "tests"
+    "test": "spec"
   },
   "scripts": {
     "test": "node spec/run.js"

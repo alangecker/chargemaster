@@ -5,7 +5,8 @@ const ChargeMaster = require('./src/ChargeMaster').default
 const cli = require('./src/cli')
 const helper = require('./src/helper')
 const commandLineArgs = require('command-line-args')
-
+const readline = require('readline')
+require('colors')
 
 function exit(code=0) {
   process.exitCode = code
@@ -27,6 +28,7 @@ function getChargeMaster(device) {
 
 const options = commandLineArgs(cli.optionDefinitions)
 
+
 // help
 if(options.help || process.argv.length < 3) {
   cli.showUsage()
@@ -41,7 +43,7 @@ if(options.help || process.argv.length < 3) {
 
 // charging,discharging,..
 } else if(options.mode) {
-  console.log('connecting...');
+  console.log('connecting to device...');
   const cm = getChargeMaster(options.device)
 
 
@@ -53,13 +55,44 @@ if(options.help || process.argv.length < 3) {
     console.log('\ndone.');
     exit()
   })
-
+  let firstStatus = true
   cm.on('status', (info) => {
     const voltage = (info.OutVoltage/1000)
     const current = (info.Current/1000)
-    process.stdout.write(`${cm.getStateTitle()}\tTime: ${info.ChargeTimer}s\t${voltage.toFixed(2)} V\t${current.toFixed(2)} A\t${info.ChargeMah} mAh\r`);
+    const minutes = Math.floor(info.ChargeTimer/60)
+    const seconds = info.ChargeTimer%60
+    readline.clearLine(process.stdout)
+    if(!firstStatus) {
+      process.stdout.cursorTo(0)
+      process.stdout.moveCursor(0,-5)
+    } else {
+      firstStatus = false
+    }
+    process.stdout.clearLine()
+    process.stdout.write("Status:\t"+cm.getStateTitle().bold+'\n');
+
+    process.stdout.clearLine()
+    process.stdout.write("Time:\t"+(minutes+'m'+seconds+'s').bold+'\n');
+
+    process.stdout.clearLine()
+    process.stdout.write((voltage.toFixed(2)+' V').blue.bold+'\t')
+    process.stdout.write((current.toFixed(2)+' A').cyan.bold+'\t')
+    process.stdout.write(((voltage*current).toFixed(2)+' W').green.bold+'\t')
+    process.stdout.write((info.ChargeMah+' mAh').magenta.bold+'\n')
+
+    process.stdout.clearLine()
+    process.stdout.write('Cells:\t')
+    for(let i=1;i<=8;i++) {
+      let cellVoltage = (info['CELL'+i]-2)/1000
+      if(i == 5) process.stdout.write('\n\t')
+      process.stdout.write((i+': ').grey+cellVoltage.toFixed(2)+'V ')
+    }
+    process.stdout.write('\n')
+
+
+    // process.stdout.write(`${cm.getStateTitle()}\tTime: ${minutes}m${seconds}s\t${voltage.toFixed(2)} V\t${current.toFixed(2)} A\t${info.ChargeMah} mAh`);
   })
-  console.log(`run mode '${options.mode}'`);
+  console.log(`run mode '${options.mode}' for battery type '${options.type}'`);
 
   cm.setBattType(options.type)
   switch(options.mode) {

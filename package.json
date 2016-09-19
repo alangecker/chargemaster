@@ -17,6 +17,7 @@
   "dependencies": {
     "babel-preset-es2015": "^6.14.0",
     "babel-register": "^6.14.0",
+    "colors": "^1.1.2",
     "command-line-args": "^3.0.1",
     "command-line-usage": "^3.0.3",
     "node-hid": "^0.5.1"

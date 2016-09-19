@@ -1,6 +1,6 @@
 {
   "name": "chargemaster",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "control various LiIon/NiMH/... chargers with nodejs",
   "main": "index.js",
   "directories": {

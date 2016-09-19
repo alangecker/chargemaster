@@ -1,11 +1,10 @@
 const getUsage = require('command-line-usage')
-const commandLineArgs = require('command-line-args')
 
 import {BattTypes} from './constants'
 import ChargeData from './ChargeData'
 
 
-const optionDefinitions = [
+export const optionDefinitions = [
   {
     name: 'device',
     description: 'the USB device',
@@ -35,19 +34,13 @@ const optionDefinitions = [
     typeLabel: '1'
   },
   {
-    name: 'ccurrent',
-    description: `Current for charging`,
+    name: 'current',
+    description: `Current for (dis-)charging`,
     type: String,
     typeLabel: '0.1'
   },
   {
-    name: 'dcurrent',
-    description: `Current for discharging`,
-    type: String,
-    typeLabel: '0.1'
-  },
-  {
-    name: 'endvoltage',
+    name: 'endVoltage',
     description: 'maximum voltage',
     type: String,
     typeLabel: '4.1'
@@ -94,76 +87,4 @@ export function showUsage() {
       content: 'Project home: [underline]{https://github.com/alangecker/chargemaster}'
     }
   ]))
-}
-
-
-
-export function parseArguments() {
-  const options = commandLineArgs(optionDefinitions)
-  // show help?
-  if(options.help || process.argv.length < 3) {
-    return {
-      do: 'help'
-    }
-  }
-  if(options.stop) {
-    return {
-      do: 'stop'
-    }
-  }
-  // device
-  if(options.device) {
-    res.device = options.device.split(':').map( (a) => parseInt(a, 16))
-    if(res.device.length != 2) {
-      throw new Error('invalid device string')
-    }
-  }
-
-  let res = {
-    do: 'charge',
-    cdata: new ChargeData()
-  };
-
-  if(options.stop) {
-    return {
-      do: 'stop',
-      device: res.device
-    }
-  }
-  // type
-  if(!options.type) {
-    throw new Error('no battery type given')
-  }
-  const BattType = BattTypes[options.type]
-  if(!BattType) {
-    throw new Error('invalid battery type')
-  }
-  res.cdata.setTypeDefaults(BattType)
-
-  // mode
-  res.cdata.PwmMode = BattType.modes.indexOf(options.mode)
-  if(res.cdata.PwmMode == -1) {
-    throw new Error('invalid mode')
-  }
-
-  // cells
-  if(options.cells) {
-    res.cdata.Cell = parseInt(options.cells)
-  }
-
-  // ccurrent
-  if(options.ccurrent) {
-    res.cdata.CCurrent = parseFloat(options.ccurrent)*1000
-  }
-
-  // dcurrent
-  if(options.dcurrent) {
-    res.cdata.DCurrent = parseFloat(options.dcurrent)*1000
-  }
-
-  // endvoltage
-  if(options.endvoltage) {
-    res.cdata.EndVoltage = parseFloat(options.endvoltage)*1000
-  }
-  return res;
 }

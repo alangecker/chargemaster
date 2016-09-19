@@ -11,7 +11,13 @@ const knownChargers = [
 
 ];
 
-
+export function bufferToArray(buf) {
+  let arr = []
+  for(let i=0;i<buf.length;i++) {
+    arr.push(buf[i])
+  }
+  return arr
+}
 
 export function findCharger() {
   const devices = HID.devices()

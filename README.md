@@ -31,7 +31,7 @@ $ npm install
 $ ./cli.js --help
 
 # example
-$ sudo ./cli.js --type LiIon --mode charge --cells 7 --ccurrent 0.5
+$ sudo ./cli.js --type LiIon --mode charge --cells 7 --current 0.5
 
 
 ```
@@ -55,7 +55,7 @@ var ChargeMaster = require('chargemaster');
 #### cm.getStatus()
 gets current status as ChargeInfo instance
 
-##### Example Response
+###### Example Response
   ```js
     ChargeInfo {
       workState: 1,
@@ -77,28 +77,37 @@ gets current status as ChargeInfo instance
       CELL8: 5
 }
   ```
-#### cm.charge(Object|ChargeData cdata) ```Promise```
+#### cm.setBattType(string type)
+Possible types: ```LiPo, LiIon, LiFe, LiHv, NiMH, NiCd, Pb```
+
+#### cm.charge(Object options) ```Promise```
 starts charging. Pass options as an Object
-##### Example Options
+###### Options
 ```js
 {
-    BattType: 'LiIon', // LiPo, LiIon, LiFe, LiHv, NiMH, NiCd, Pb
-    Cells: 1,
-    PwmMode: 'charge',
-    CCurrent: 100, // mA
-    DCurrent: 100, // mA
-    CellVoltage: 0, // mV
-    EndVoltage: 0, // mV
-    R_PeakCount: 1,
-    CycleType: 1,
-    Cyc_count: 1,
-    Trickle: 0
+    cells: 1, // number of cells in series
+    current: 0.1, // in A
+    cellVoltage: 3.1, // in V
+    endVoltage: 4.2 // in V
 }
 ```
 
+#### cm.discharge(Object options) ```Promise```
+starts discharging
+###### Options
+```js
+{
+    cells: 1, // number of cells in series
+    current: 0.1, // in A
+    cellVoltage: 3.1 // in V
+}
+```
+#### cm.stop(Object options) ```Promise```
+starts discharging
+
 ####  cm.getMachineInfo() ```Promise```
   gets details about the charger
-##### Example Response
+###### Example Response
 ```js
 {
     machineId: '100069',
@@ -113,7 +122,9 @@ starts charging. Pass options as an Object
     mctype: 0,
     checksum: 195
 }
-```
+```#### cm.discharge(Object options) ```Promise```
+starts discharging.
+
 
 #### Event: "connected"
 #### Event: "status"

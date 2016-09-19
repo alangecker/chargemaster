@@ -3,17 +3,10 @@ import EventEmitter from 'events'
 
 import Protocol from './Protocol'
 import ChargeData from './ChargeData'
+import {bufferToArray} from './helper'
 import {CMD,STATE,BattTypes,ErrorCodes} from './constants'
 
 const UPDATE_INTERVAL = 1000
-
-function bufferToArray(buf) {
-  let arr = []
-  for(let i=0;i<buf.length;i++) {
-    arr.push(buf[i])
-  }
-  return arr
-}
 
 
 export default class ChargeMaster extends EventEmitter {
@@ -24,7 +17,8 @@ export default class ChargeMaster extends EventEmitter {
       vendorId = vendorId[0]
     }
 
-    this.BattTypes = BattTypes
+    this.BattType = null
+
     this.curPackets = {}
     this.curPacketsReply = []
     this.status = {
@@ -35,12 +29,14 @@ export default class ChargeMaster extends EventEmitter {
     this.emit('connected')
 
     this.device.on('data', this.handleData.bind(this))
-    this.device.on('error', this.handleError.bind(this))
+    this.device.on('error', this.handleHIDError.bind(this))
 
     setInterval(this.updateStatus.bind(this), UPDATE_INTERVAL)
   }
 
-
+  /**
+    handle binary data sent from device
+  */
   handleData(data) {
     let shifted = Buffer.alloc(data.length+1)
     data.copy(shifted, 1)
@@ -64,12 +60,16 @@ export default class ChargeMaster extends EventEmitter {
 
   }
 
-
-  handleError(err) {
+  /**
+    handles error, which are sent from node-hid
+  */
+  handleHIDError(err) {
     this.emit('error', err)
   }
 
-
+  /**
+    sends command to device
+  */
   sendData(cmd, data) {
     return new Promise( (resolve,reject) => {
       const s = Protocol.generateRequest(cmd, data)
@@ -85,10 +85,18 @@ export default class ChargeMaster extends EventEmitter {
     })
   }
 
+
+  /**
+    get machine infomations
+  */
   getMachineInfo() {
     return this.sendData(CMD.MACHINE_ID).then(Protocol.parseMachineInfo)
   }
 
+  /**
+    pulls current status from device, emit events on changes and
+    saves status object to this.status
+  */
   updateStatus() {
     return this.sendData(CMD.TAKE_DATA)
     .then(Protocol.parseTakeData)
@@ -130,48 +138,97 @@ export default class ChargeMaster extends EventEmitter {
       this.emit('status', res)
     })
   }
-  charge(cdata) {
-    if(!(cdata instanceof ChargeData)) {
 
-      // converting strings to integers and checks
-      if(typeof cdata.BattType == 'string') {
-        cdata.BattType = BattTypes[cdata.BattType]
-      }
-      if(!cdata.BattType) {
-        throw new Error('BattType is required')
-      }
-      if(typeof cdata.PwmMode == 'string') {
-        cdata.PwmMode = cdata.BattType.modes.indexOf(cdata.PwmMode)
-      }
-      if(typeof cdata.PwmMode != 'number' || cdata.PwmMode < 0) {
-        throw new Error('invalid PwmMode')
-      }
+  /**
+    return current status object
+  */
+  getStatus() {
+    return this.status
+  }
 
-      // copy all options to ChargeData object
-      let obj = new ChargeData;
-      obj.setTypeDefaults(cdata.BattType)
+  /**
+    set battery type
+  */
+  setBattType(type) {
+    this.BattType = BattTypes[type]
+    if(!this.BattType) {
+      throw new Error('invalid BattType')
+    }
+  }
 
-      for(let key in cdata) {
-        if(key != 'BattType') obj[key] = cdata[key]
-      }
-      cdata = obj
+  /**
+    starts charging
+  */
+  charge(options={}) {
+    if(!this.BattType) {
+      throw new Error('you have to specify an BattType as first. check README for cm.setBattType()')
+    }
+
+    let cdata = new ChargeData;
+
+    // set options
+    cdata.setTypeDefaults(this.BattType)
+
+    cdata.PwmMode = cdata.BattType.modes.indexOf('charge')
+    if(cdata.PwmMode == -1) {
+      throw new Error('charging is not possible for this BattType')
+    }
+
+    if(options.cells) cdata.setCells(options.cells)
+    if(options.current) cdata.setCCurrent(options.current)
+    if(options.cellVoltage) cdata.setCellVoltage(options.cellVoltage)
+    if(options.endVoltage) cdata.setEndVoltage(options.endVoltage)
+
+
+    // run
+    return this.sendData(CMD.START_CHARGER, cdata)
+
+  }
+
+
+  /**
+    starts discharging
+  */
+  discharge(options={}) {
+    if(!this.BattType) {
+      throw new Error('you have to specify an BattType as first. check README for cm.setBattType()')
+    }
+
+    let cdata = new ChargeData;
+
+    // set options
+    cdata.setTypeDefaults(this.BattType)
+
+    cdata.PwmMode = cdata.BattType.modes.indexOf('discharge')
+    if(cdata.PwmMode == -1) {
+      throw new Error('charging is not possible for this BattType')
     }
 
 
+    if(options.cells) cdata.setCells(options.cells)
+    if(options.current) cdata.setDCurrent(options.current)
+    if(options.cellVoltage) cdata.setCellVoltage(options.cellVoltage)
+
+    // run
     return this.sendData(CMD.START_CHARGER, cdata)
+
   }
 
+
+  /**
+    stops charging/discharging
+  */
   stop() {
     return this.sendData(CMD.STOP_CHARGER).then( () => {
       this.emit('stopped')
     })
   }
-  getStatus() {
-    return this.status
-  }
+
+  /**
+    get name of the current state
+  */
   getStateTitle() {
     // TODO: does not retrieve name by value
     return Object.keys(STATE)[this.status.workState-1]
   }
-
 }

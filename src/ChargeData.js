@@ -41,7 +41,21 @@ export default class ChargeData {
     this.CellVoltage = type.CellVoltage
     this.EndVoltage = type.EndVoltage
   }
-
+  setCells(c) {
+    this.Cells = parseInt(c)
+  }
+  setCCurrent(c) {
+    this.CCurrent = parseInt(parseFloat(c)*1000)
+  }
+  setDCurrent(c) {
+    this.DCurrent = parseInt(parseFloat(c)*1000)
+  }
+  setCellVoltage(v) {
+    this.CellVoltage = parseInt(parseFloat(v)*1000)
+  }
+  setEndVoltage(v) {
+    this.EndVoltage = parseInt(parseFloat(v)*1000)
+  }
   getModeName() {
     return this.BattType.modes[this.PwmMode];
   }

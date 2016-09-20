@@ -9,6 +9,9 @@
   "scripts": {
     "test": "node spec/run.js"
   },
+  "bin": {
+    "chargemaster":"./cli.js"
+  },
   "author": "Andreas Langecker <a.langecker@posteo.de>",
   "license": "MIT",
   "devDependencies": {

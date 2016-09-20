@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-require('babel-register')();
+require('babel-register')({
+  ignore: /node_modules\/(?!chargemaster)/
+});
 
 const ChargeMaster = require('./src/ChargeMaster').default
 const cli = require('./src/cli')
@@ -47,9 +49,7 @@ if(options.help || process.argv.length < 3) {
   cm.on('error', (err) => {
     exit(1, 'ERROR:', err);
   })
-  cm.on('finish', () => {
-    exit(0, 'done.');
-  })
+
   cm.on('status', cli.printStatus)
 
 

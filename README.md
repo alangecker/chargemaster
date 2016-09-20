@@ -23,15 +23,14 @@ very early version! Bugs can inflame your batteries! Use at your own risk! Neith
 
 ## Usage as CLI Tool
 ```bash
-$ git clone https://github.com/alangecker/chargemaster.git
-$ cd chargemaster
-$ npm install
+# install
+$ npm install -g chargemaster
 
 # help
-$ ./cli.js --help
+$ chargemaster --help
 
 # example
-$ sudo ./cli.js --type LiIon --mode charge --cells 7 --current 0.5
+$ sudo chargemaster --type LiIon --mode charge --cells 7 --current 0.5
 
 
 ```
@@ -122,7 +121,9 @@ starts discharging
     mctype: 0,
     checksum: 195
 }
-```#### cm.discharge(Object options) ```Promise```
+```
+
+#### cm.discharge(Object options) ```Promise```
 starts discharging.
 
 

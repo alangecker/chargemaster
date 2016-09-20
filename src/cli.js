@@ -53,6 +53,11 @@ export const optionDefinitions = [
     type: Boolean
   },
   {
+    name: 'status',
+    description: `show current status`,
+    type: Boolean
+  },
+  {
     name: 'help',
     description: `show this help`,
     type: Boolean

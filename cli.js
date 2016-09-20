@@ -39,6 +39,20 @@ if(options.help || process.argv.length < 3) {
   cm.stop()
   process.exit(0)
 
+
+// status
+} else if(options.status) {
+  const cm = getChargeMaster(options.device)
+  console.log(`Status\n=============================================`.bold);
+  cm.on('error', (err) => {
+    exit(1, 'ERROR:', err);
+  })
+  cm.on('finish', () => {
+    exit(0, 'done.');
+  })
+  cm.on('status', cli.printStatus)
+
+
 // charging,discharging,..
 } else if(options.mode) {
   const cm = getChargeMaster(options.device)

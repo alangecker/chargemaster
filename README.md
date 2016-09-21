@@ -152,10 +152,11 @@ cm.getMachineInfo().then( (info) => {
   console.log(`MachineId: ${info.machineId}\nFirmware: ${info.softwareVersion}`);
 });
 
+cm.setBattType('LiIon');
+
 cm.charge({
-  BattType: 'LiIon',
-  PwmMode: 'charge',
-  CCurrent: 1000 // mA
+  cells: 1,
+  current: 1.0 // A
 });
 ```
 
